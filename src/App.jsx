@@ -12,6 +12,7 @@ import {
   Moon,
   Volume2,
   VolumeX,
+  RotateCcw,
 } from 'lucide-react';
 
 import Sidebar from './components/Sidebar';
@@ -21,6 +22,7 @@ import HabitModal from './components/HabitModal';
 import HabitDetailModal from './components/HabitDetailModal';
 import AnalyticsView from './components/AnalyticsView';
 import SettingsView from './components/SettingsView';
+import ResetModal from './components/ResetModal';
 import Toast from './components/Toast';
 
 import {
@@ -51,6 +53,7 @@ export default function App() {
 
   // Modals & Drawers
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [editingHabit, setEditingHabit] = useState(null);
   const [detailHabit, setDetailHabit] = useState(null);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -212,22 +215,51 @@ export default function App() {
     }
   }, [habits, logs, triggerConfetti, addToast]);
 
-  // Database Management
+  // Database & Reset Management
   const handleImportData = useCallback((importedHabits, importedLogs) => {
     setHabits(importedHabits);
     setLogs(importedLogs);
   }, []);
 
+  const handleResetToday = useCallback(() => {
+    const todayStr = formatDate(new Date());
+    const countBefore = logs.filter(l => l.completionDate === todayStr && l.status === 'completed').length;
+    if (countBefore === 0) {
+      addToast("No habits were marked complete today to reset.", 'info');
+      return;
+    }
+    setLogs(prev => prev.filter(l => !(l.completionDate === todayStr && l.status === 'completed')));
+    soundEngine.playUndo();
+    addToast(`Reset ${countBefore} completed habit${countBefore > 1 ? 's' : ''} for today.`, 'info');
+  }, [logs, addToast]);
+
+  const handleResetAllHistory = useCallback(() => {
+    setLogs([]);
+    soundEngine.playUndo();
+    addToast('All streak & completion history has been reset to 0.', 'info');
+  }, [addToast]);
+
+  const handleResetHabitHistory = useCallback((habitId, habitName) => {
+    setLogs(prev => prev.filter(l => l.habitId !== habitId));
+    soundEngine.playUndo();
+    addToast(`Reset history for "${habitName}".`, 'info');
+  }, [addToast]);
+
   const handleResetData = useCallback(() => {
     const seed = generateSeedData();
     setHabits(seed.habits);
     setLogs(seed.logs);
-  }, []);
+    soundEngine.playFanfare();
+    triggerConfetti(50);
+    addToast('Database reloaded with sample demo habits & 35-day streaks!', 'success');
+  }, [triggerConfetti, addToast]);
 
   const handleClearAllData = useCallback(() => {
     setHabits([]);
     setLogs([]);
-  }, []);
+    soundEngine.playUndo();
+    addToast('All habits and history cleared.', 'info');
+  }, [addToast]);
 
   return (
     <div className="app-container">
@@ -249,6 +281,7 @@ export default function App() {
           setEditingHabit(null);
           setIsAddModalOpen(true);
         }}
+        onOpenResetModal={() => setIsResetModalOpen(true)}
         isMobileOpen={isMobileOpen}
         setIsMobileOpen={setIsMobileOpen}
         dashboardStats={dashboardStats}
@@ -273,6 +306,14 @@ export default function App() {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button
+              className="icon-btn"
+              onClick={() => setIsResetModalOpen(true)}
+              title="Reset Data & Progress"
+              aria-label="Open Reset Options"
+            >
+              <RotateCcw size={16} />
+            </button>
             <button
               className="icon-btn"
               onClick={toggleTheme}
@@ -307,6 +348,8 @@ export default function App() {
                 setEditingHabit(null);
                 setIsAddModalOpen(true);
               }}
+              onOpenResetModal={() => setIsResetModalOpen(true)}
+              onResetToday={handleResetToday}
               onOpenDetailModal={habit => setDetailHabit(habit)}
               onNavigateToAnalytics={() => setActiveTab('analytics')}
               stats={dashboardStats}
@@ -329,6 +372,7 @@ export default function App() {
               onDeleteHabit={handleDeleteHabit}
               onToggleHabitStatus={handleToggleHabitStatus}
               onToggleCompletion={handleToggleCompletion}
+              onOpenResetModal={() => setIsResetModalOpen(true)}
             />
           )}
 
@@ -345,8 +389,11 @@ export default function App() {
               soundEnabled={soundEnabled}
               toggleSound={toggleSound}
               onImportData={handleImportData}
+              onResetToday={handleResetToday}
+              onResetAllHistory={handleResetAllHistory}
               onResetData={handleResetData}
               onClearAllData={handleClearAllData}
+              onOpenResetModal={() => setIsResetModalOpen(true)}
               addToast={addToast}
             />
           )}
@@ -422,6 +469,18 @@ export default function App() {
           setIsAddModalOpen(true);
         }}
         onToggleDateCompletion={handleToggleCompletion}
+        onResetHabitHistory={handleResetHabitHistory}
+      />
+
+      {/* Universal Reset Modal */}
+      <ResetModal
+        isOpen={isResetModalOpen}
+        onClose={() => setIsResetModalOpen(false)}
+        onResetToday={handleResetToday}
+        onResetAllHistory={handleResetAllHistory}
+        onResetData={handleResetData}
+        onClearAllData={handleClearAllData}
+        completedTodayCount={dashboardStats.completedToday}
       />
 
       {/* Global Toasts */}

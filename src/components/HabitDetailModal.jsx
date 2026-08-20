@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   Edit2,
   Clock,
+  RotateCcw,
 } from 'lucide-react';
 import { CATEGORIES } from '../types/habit';
 import {
@@ -22,6 +23,7 @@ export default function HabitDetailModal({
   onClose,
   onOpenEditModal,
   onToggleDateCompletion,
+  onResetHabitHistory,
 }) {
   if (!isOpen || !habit) return null;
 
@@ -203,7 +205,21 @@ export default function HabitDetailModal({
           </div>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', flexWrap: 'wrap', gap: '10px' }}>
+          <button
+            className="btn-danger"
+            style={{ padding: '6px 12px', minHeight: '36px', fontSize: '0.8rem', gap: '6px' }}
+            onClick={() => {
+              if (window.confirm(`Reset all completion history for "${habit.name}"? Streak will be reset to 0.`)) {
+                onResetHabitHistory(habit.id, habit.name);
+              }
+            }}
+            aria-label="Reset Habit History"
+          >
+            <RotateCcw size={14} />
+            <span>Reset Habit Streak & History</span>
+          </button>
+
           <button className="btn-secondary" onClick={onClose} style={{ minWidth: '80px' }}>
             Close
           </button>

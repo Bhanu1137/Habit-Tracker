@@ -11,7 +11,8 @@ import {
   Sparkles,
   Zap,
   Target,
-  Clock
+  Clock,
+  RotateCcw
 } from 'lucide-react';
 import { CATEGORIES } from '../types/habit';
 import { calculateCurrentStreak, calculateCompletionPercentage, formatDate } from '../utils/streakEngine';
@@ -21,6 +22,8 @@ export default function Dashboard({
   logs,
   onToggleCompletion,
   onOpenAddModal,
+  onOpenResetModal,
+  onResetToday,
   onOpenDetailModal,
   onNavigateToAnalytics,
   stats,
@@ -73,6 +76,10 @@ export default function Dashboard({
         </div>
 
         <div className="header-actions">
+          <button className="btn-secondary" onClick={onOpenResetModal} title="Reset Data & Progress Options" aria-label="Reset Options">
+            <RotateCcw size={16} />
+            <span>Reset</span>
+          </button>
           <button className="btn-secondary" onClick={onNavigateToAnalytics} aria-label="View Analytics">
             <TrendingUp size={16} />
             <span>Analytics</span>
@@ -196,9 +203,23 @@ export default function Dashboard({
           <Clock size={20} color="var(--accent-primary)" />
           <span>Today's Habit Checklist</span>
         </h2>
-        <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-          Click to mark complete
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          {stats.completedToday > 0 && (
+            <button
+              className="btn-secondary"
+              style={{ padding: '4px 10px', minHeight: '30px', fontSize: '0.78rem', gap: '5px' }}
+              onClick={onResetToday}
+              title="Uncheck all completed habits for today"
+              aria-label="Reset today's completions"
+            >
+              <RotateCcw size={13} />
+              <span>Reset Today ({stats.completedToday})</span>
+            </button>
+          )}
+          <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+            Click to mark complete
+          </span>
+        </div>
       </div>
 
       {activeHabits.length === 0 ? (

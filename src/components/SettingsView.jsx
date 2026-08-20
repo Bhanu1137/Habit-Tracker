@@ -14,6 +14,8 @@ import {
   ShieldCheck,
   Code2,
   Sparkles,
+  Flame,
+  CheckCircle2,
 } from 'lucide-react';
 import { exportDataAsJSON, exportLogsAsCSV, parseJSONBackup } from '../utils/storage';
 
@@ -25,8 +27,11 @@ export default function SettingsView({
   soundEnabled,
   toggleSound,
   onImportData,
+  onResetToday,
+  onResetAllHistory,
   onResetData,
   onClearAllData,
+  onOpenResetModal,
   addToast,
 }) {
   const fileInputRef = useRef(null);
@@ -171,45 +176,86 @@ export default function SettingsView({
           </div>
         </div>
 
-        {/* Card 4: Database Management */}
+        {/* Card 4: Database & Reset Management */}
         <div className="chart-card">
-          <h3>
-            <RotateCcw size={18} color="#ef4444" />
-            <span>Reset & Sample Data</span>
-          </h3>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '18px' }}>
-            Quickly re-populate demo habits or wipe the local database clean.
-          </p>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: 'auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <h3 style={{ margin: 0 }}>
+              <RotateCcw size={18} color="#ef4444" />
+              <span>Reset & Sample Data</span>
+            </h3>
             <button
               className="btn-secondary"
-              style={{ justifyContent: 'center' }}
+              style={{ padding: '4px 10px', minHeight: '30px', fontSize: '0.78rem', gap: '4px' }}
+              onClick={onOpenResetModal}
+              title="Open full reset options modal"
+            >
+              <RotateCcw size={13} />
+              <span>Reset Hub</span>
+            </button>
+          </div>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
+            Quickly uncheck today's tasks, zero-out streaks, reload demo data, or factory wipe.
+          </p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: 'auto' }}>
+            <button
+              className="btn-secondary"
+              style={{ justifyContent: 'space-between', fontSize: '0.85rem' }}
+              onClick={onResetToday}
+              aria-label="Reset Today's Completions"
+            >
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <CheckCircle2 size={16} color="#6366f1" /> Reset Today's Checks
+              </span>
+              <span className="reset-badge badge-safe">Routine</span>
+            </button>
+
+            <button
+              className="btn-secondary"
+              style={{ justifyContent: 'space-between', fontSize: '0.85rem' }}
               onClick={() => {
-                if (window.confirm('Reset database to sample demo habits and 35-day completion history?')) {
+                if (window.confirm('Reset all historical streaks to 0? Your habits will NOT be deleted.')) {
+                  onResetAllHistory();
+                }
+              }}
+              aria-label="Reset All Streaks & History"
+            >
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Flame size={16} color="#f59e0b" /> Reset All Streaks to 0
+              </span>
+              <span className="reset-badge badge-warning">Streaks</span>
+            </button>
+
+            <button
+              className="btn-secondary"
+              style={{ justifyContent: 'space-between', fontSize: '0.85rem' }}
+              onClick={() => {
+                if (window.confirm('Reset database to 6 sample demo habits and 35-day completion history?')) {
                   onResetData();
-                  addToast('Database reloaded with rich demo data!', 'success');
                 }
               }}
               aria-label="Load Realistic Sample Demo Data"
             >
-              <RotateCcw size={16} />
-              <span>Load Sample Demo Data</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Sparkles size={16} color="#06b6d4" /> Restore Demo Sample Data
+              </span>
+              <span className="reset-badge badge-info">Sample</span>
             </button>
 
             <button
               className="btn-danger"
-              style={{ justifyContent: 'center' }}
+              style={{ justifyContent: 'space-between', fontSize: '0.85rem', marginTop: '4px' }}
               onClick={() => {
                 if (window.confirm('Are you sure you want to delete ALL habits and logs permanently? This cannot be undone.')) {
                   onClearAllData();
-                  addToast('All data cleared.', 'info');
                 }
               }}
               aria-label="Clear All Habits and History"
             >
-              <Trash2 size={16} />
-              <span>Clear All Habits & History</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Trash2 size={16} /> Factory Reset (Clear All)
+              </span>
+              <span className="reset-badge badge-danger">Wipe</span>
             </button>
           </div>
         </div>

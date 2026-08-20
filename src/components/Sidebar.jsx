@@ -11,6 +11,7 @@ import {
   VolumeX,
   PlusCircle,
   Sparkles,
+  RotateCcw,
   X
 } from 'lucide-react';
 
@@ -24,6 +25,7 @@ export default function Sidebar({
   soundEnabled,
   toggleSound,
   onOpenAddModal,
+  onOpenResetModal,
   isMobileOpen,
   setIsMobileOpen,
   dashboardStats,
@@ -103,7 +105,7 @@ export default function Sidebar({
             );
           })}
 
-          <div style={{ marginTop: '16px', padding: '0 4px' }}>
+          <div style={{ marginTop: '16px', padding: '0 4px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <button
               className="btn-primary"
               style={{ width: '100%', justifyContent: 'center' }}
@@ -133,7 +135,7 @@ export default function Sidebar({
             <div className="stat-val">{dashboardStats.bestCurrentStreak}d</div>
           </div>
 
-          {/* Theme & Sound Actions */}
+          {/* Theme, Sound & Reset Actions */}
           <div className="sidebar-actions">
             <button
               className="icon-btn"
@@ -151,6 +153,18 @@ export default function Sidebar({
               aria-label="Toggle sound"
             >
               {soundEnabled ? <Volume2 size={18} color="var(--accent-primary)" /> : <VolumeX size={18} />}
+            </button>
+
+            <button
+              className="icon-btn"
+              title="Reset Data & Progress"
+              onClick={() => {
+                onOpenResetModal();
+                if (isMobileOpen) setIsMobileOpen(false);
+              }}
+              aria-label="Open Reset Center"
+            >
+              <RotateCcw size={17} />
             </button>
 
             <button

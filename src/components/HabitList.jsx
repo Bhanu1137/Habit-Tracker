@@ -10,6 +10,7 @@ import {
   ArchiveRestore,
   Filter,
   CheckCircle2,
+  RotateCcw,
 } from 'lucide-react';
 import { CATEGORIES } from '../types/habit';
 import { calculateCurrentStreak, calculateLongestStreak, calculateCompletionPercentage, formatDate } from '../utils/streakEngine';
@@ -23,6 +24,7 @@ export default function HabitList({
   onDeleteHabit,
   onToggleHabitStatus,
   onToggleCompletion,
+  onOpenResetModal,
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
@@ -94,6 +96,10 @@ export default function HabitList({
         </div>
 
         <div className="header-actions">
+          <button className="btn-secondary" onClick={onOpenResetModal} title="Reset Data & Progress Options" aria-label="Reset Options">
+            <RotateCcw size={16} />
+            <span>Reset</span>
+          </button>
           <button className="btn-primary" onClick={onOpenAddModal} aria-label="Create New Habit">
             <Plus size={18} />
             <span>New Habit</span>
